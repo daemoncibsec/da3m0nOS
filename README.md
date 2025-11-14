@@ -3,7 +3,7 @@
   <br>
 </h1>
 
-## Points to keep in mimd
+## Points to keep in mind
 
 Because of how "preseed.cfg" is configured, the automatic installation will remove any lvm and raid volumes you have on your system. Before running an installation, please consider which information you want to keep on your system.
 
