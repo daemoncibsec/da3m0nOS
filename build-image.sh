@@ -14,6 +14,8 @@ rmdir /tmp/iso
 #echo preseed.cfg | cpio -H newc -o -A -F isofiles/install.amd/initrd
 #gzip isofiles/install.amd/initrd
 #chmod -w -R isofiles/install.amd/
+sudo apt install dos2unix
+dos2unix preseed.cfg
 sudo apt install gzip
 cd isofiles/install.amd
 gunzip initrd.gz
@@ -37,7 +39,7 @@ cd ..
 label="DEBIAN_13_1_0_AMD64"
 
 # Build the image using xorriso
-sudo apt install dos2unix syslinux syslinux-common isolinux xorriso
+sudo apt install syslinux syslinux-common isolinux xorriso
 xorriso -as mkisofs \
   -V "$label" \
   -o da3m0nOS-1.0.0-amd64-netinst.iso \
