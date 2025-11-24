@@ -6,6 +6,7 @@ mkdir /tmp/iso
 sudo mount -o loop $debian_iso /tmp/iso
 sudo cp -r /tmp/iso isofiles
 sudo umount /tmp/iso
+rmdir /tmp/iso
 
 # Append the preseeding file into initrd
 #chmod +w -R isofiles/install.amd/
@@ -13,15 +14,16 @@ sudo umount /tmp/iso
 #echo preseed.cfg | cpio -H newc -o -A -F isofiles/install.amd/initrd
 #gzip isofiles/install.amd/initrd
 #chmod -w -R isofiles/install.amd/
+sudo apt install gzip
 cd isofiles/install.amd
 gunzip initrd.gz
 find ../../preseed.cfg | cpio -H newc -o -A -F initrd
 gzip initrd
 cd ../..
 
-if ! grep -q "file=/preseed.cfg" isofiles/boot/grub/grub.cfg; then
-    sed -i '/linux / s|$| auto=true priority=critical file=/preseed.cfg|' isofiles/boot/grub/grub.cfg
-fi
+#if ! grep -q "file=/preseed.cfg" isofiles/boot/grub/grub.cfg; then
+#    sed -i '/linux / s|$| auto=true priority=critical file=/preseed.cfg|' isofiles/boot/grub/grub.cfg
+#fi
 
 # Regenerate the md5sum
 cd isofiles
@@ -35,4 +37,25 @@ cd ..
 label="DEBIAN_13_1_0_AMD64"
 
 # Build the image using xorriso
-xorriso -as mkisofs -V $label -r -J -joliet-long -o da3m0nOS-1.0.0-amd64-netinstall.iso -eltorito-alt-boot -e boot/grub/efi.img -no-emul-boot -isohybrid-gpt-basdat isofiles
+sudo apt install dos2unix syslinux syslinux-common isolinux xorriso
+xorriso -as mkisofs \
+  -V "$label" \
+  -o da3m0nOS-1.0.0-amd64-netinst.iso \
+  -r -J -joliet-long \
+  \
+  -isohybrid-mbr /usr/lib/ISOLINUX/isohdpfx.bin \
+  \
+  -eltorito-boot isolinux/isolinux.bin \
+      -eltorito-catalog isolinux/boot.cat \
+      -no-emul-boot \
+      -boot-load-size 4 \
+      -boot-info-table \
+  \
+  -eltorito-alt-boot \
+  -e boot/grub/efi.img \
+      -no-emul-boot \
+  \
+  -isohybrid-gpt-basdat \
+  isofiles
+
+sudo rm -R isofiles
